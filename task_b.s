@@ -1,46 +1,28 @@
-# Задача б. Вычислительные системы, практическое занятие 02.10.2026
-# Пущин Тимофей Андреевич, М3О-121СВ-26, номер в списке группы: 12
-#
-# Программа читает целое x и печатает все значения из диапазона
-# min(x, y)...max(x, y) с шагом h, где y = 121 (номер группы),
-# h = 12 (номер студента в группе). Каждое значение с новой строки.
+# б) печатает числа от min(x, y) до max(x, y) с шагом h
+#    y = 121 (группа), h = 12 (номер в списке)
 
-        .eqv    GROUP, 121          # y, номер группы
-        .eqv    STEP, 12            # h, мой номер в списке группы
-        .eqv    SYS_PRINT_INT, 1
-        .eqv    SYS_READ_INT, 5
-        .eqv    SYS_EXIT, 10
-        .eqv    SYS_PRINT_CHAR, 11
-
-        .text
-        .globl  main
+    .text
 main:
-        li      a7, SYS_READ_INT
-        ecall                       # a0 = x
+    li   a7, 5          # читаем x
+    ecall
 
-        mv      s0, a0              # s0 = текущее значение, начинаем с min
-        li      s1, GROUP           # s1 = верхняя граница, max
-        ble     s0, s1, ordered     # x <= y: границы уже по порядку
-        mv      s0, s1              # иначе min = y,
-        mv      s1, a0              #        max = x
-ordered:
-        li      s2, STEP
+    mv   t0, a0         # t0 - откуда идём
+    li   t1, 121        # t1 - докуда
+    ble  t0, t1, loop
+    mv   t0, t1         # x больше y, меняем местами
+    mv   t1, a0
 
 loop:
-        bgt     s0, s1, done        # вышли за max: конец
+    bgt  t0, t1, end
+    mv   a0, t0
+    li   a7, 1
+    ecall
+    li   a0, '\n'
+    li   a7, 11
+    ecall
+    addi t0, t0, 12
+    j    loop
 
-        mv      a0, s0
-        li      a7, SYS_PRINT_INT
-        ecall                       # печать текущего значения
-        li      a0, '\n'
-        li      a7, SYS_PRINT_CHAR
-        ecall
-
-        add     t0, s0, s2          # следующее значение
-        blt     t0, s0, done        # защита от переполнения у границы int
-        mv      s0, t0
-        j       loop
-
-done:
-        li      a7, SYS_EXIT
-        ecall
+end:
+    li   a7, 10
+    ecall
